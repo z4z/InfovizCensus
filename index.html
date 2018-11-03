@@ -14,7 +14,7 @@
 
 </style>
 <body>
-<script src="//d3js.org/d3.v4.min.js"></script>
+<script src="//d3js.org/d3.v5.min.js"></script>
 <script src="//d3js.org/topojson.v1.min.js"></script>
 <script>
 
@@ -32,7 +32,15 @@ var canvas = d3.select("body").append("canvas")
     
 var context = canvas.node().getContext("2d")
 
-d3.json("map/stl.json", function(error, stl) {
+Promise.all([
+    d3.json('map/stl.json'),
+    d3.csv('data/2010.csv')
+]).then(vis)
+
+function vis(data) {
+    stl = data[0]
+    d2010 = data[1]
+        
     var projection = d3.geoTransverseMercator()
         .rotate([90 + 30 / 60, -35 - 50 / 60])
         .fitSize([width, height], stl)
@@ -41,7 +49,7 @@ d3.json("map/stl.json", function(error, stl) {
         .projection(projection);
         
     var tracts = stl.features
-            
+                    
     svg.append("g")
     .selectAll("path")
       .data(tracts)
@@ -49,10 +57,53 @@ d3.json("map/stl.json", function(error, stl) {
       .attr("class", "tract")
       .attr("d", path)
 
-    var num_tracts = tracts.length,
-        max_population = 100,
-        population_by_tract = Array.from({length: num_tracts}, () => 
-                              Math.floor(Math.random()*max_population))
+    var num_tracts = tracts.length
+    
+    var stl_tract_ids = []
+    for(var i=0; i<num_tracts; i++) {
+        var tract_id = tracts[i].properties.TRACTCE10
+        stl_tract_ids.push(tract_id)
+    }
+        
+    // This will work if stl_tract_ids is sorted (close, but it's not)
+    // function binarySearch(target, low, high) {
+    //     var mid = low + Math.floor((high - low) / 2)
+    //     var result = stl_tract_ids[mid]
+    //     if (target == result) {
+    //         return index
+    //     }
+    //     if (target > result) {
+    //         return binarySearch(target, mid+1, high)
+    //     }
+    //     else {
+    //         return binarySearch(target, low, mid-1)
+    //     }
+    // }
+    
+    var white_col = 'SE_T054_002',
+        black_col = 'SE_T054_003'
+        tract_id_col = 'Geo_TRACT'
+        
+    var white_by_tract = new Array(num_tracts)
+    var black_by_tract = new Array(num_tracts)
+    
+    for (var i=0; i<num_tracts; i++) {
+        var tract_data = d2010[i]
+        var tract_id = parseInt(tract_data[tract_id_col])
+        
+        var num_white = parseInt(tract_data[white_col])
+        var num_black = parseInt(tract_data[black_col])
+        
+        var tract_index = 0
+        for (var j=0; j<num_tracts; j++) {
+            if (tract_id == stl_tract_ids[j]) {
+                tract_index = j
+                break
+            }
+        }
+        white_by_tract[tract_index] = num_white
+        black_by_tract[tract_index] = num_black
+    }
     
     function drawPolygon(coordinates, fill) {
         context.fillStyle = fill
@@ -85,7 +136,8 @@ d3.json("map/stl.json", function(error, stl) {
 
     for (var i=0; i<num_tracts; i++) {
         tract = tracts[i]
-        population = population_by_tract[i]
+        white_pop = Math.round(white_by_tract[i] / 50)
+        black_pop = Math.round(black_by_tract[i] / 50)
 
         var bounds = path.bounds(tract),
             x0 = bounds[0][0],
@@ -93,7 +145,37 @@ d3.json("map/stl.json", function(error, stl) {
             w = bounds[1][0] - x0,
             h = bounds[1][1] - y0
 
-        for (var j=0; j<population; j++) {
+        for (var j=0; j<white_pop; j++) {
+            var tries = 1
+
+            while (true) {
+                var x = Math.round(x0 + Math.random()*w),
+                    y = Math.round(y0 + Math.random()*h)
+                
+                var r = Math.floor(i / 256),
+                    g = i % 256
+                
+            	var index = (x + y * width) * 4
+                
+                var actual_r = pixels[index],
+                    actual_g = pixels[index+1]
+                             
+                var contains = actual_r == r && actual_g == g
+                if (contains) {
+                    svg.append("circle")
+                        .attr("cx", x)
+                        .attr("cy", y)
+                        .attr("r", 1)
+                        .attr("fill", "blue")
+                        .attr("fill-opacity", .2)
+                    break
+                }
+
+                tries++
+            }
+        }
+        
+        for (var j=0; j<black_pop; j++) {
             var tries = 1
 
             while (true) {
@@ -115,7 +197,7 @@ d3.json("map/stl.json", function(error, stl) {
                         .attr("cy", y)
                         .attr("r", 1)
                         .attr("fill", "red")
-                        .attr("fill-opacity", .3)
+                        .attr("fill-opacity", .2)
                     break
                 }
 
@@ -123,6 +205,6 @@ d3.json("map/stl.json", function(error, stl) {
             }
         }
     }
-});
+}
 
 </script>
