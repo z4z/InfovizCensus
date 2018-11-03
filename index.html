@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.tract {
+  fill: #ebebeb;
+  stroke: black;
+  stroke-width: .1;
+}
+
+.tract:hover {
+  fill: blue;
+}
+
+</style>
+<body>
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var width = 650,
+    height = 650
+    
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+
+var canvas = d3.select("body").append("canvas")
+    .attr("width", width)
+    .attr("height", height)
+	.style("display","none");
+    
+var context = canvas.node().getContext("2d")
+
+d3.json("map/stl.json", function(error, stl) {
+    var projection = d3.geoTransverseMercator()
+        .rotate([90 + 30 / 60, -35 - 50 / 60])
+        .fitSize([width, height], stl)
+    
+    var path = d3.geoPath()
+        .projection(projection);
+        
+    var tracts = stl.features
+            
+    svg.append("g")
+    .selectAll("path")
+      .data(tracts)
+    .enter().append("path")
+      .attr("class", "tract")
+      .attr("d", path)
+
+    var num_tracts = tracts.length,
+        max_population = 100,
+        population_by_tract = Array.from({length: num_tracts}, () => 
+                              Math.floor(Math.random()*max_population))
+    
+    function drawPolygon(coordinates, fill) {
+        context.fillStyle = fill
+    	context.beginPath();
+    	coordinates.forEach( function(ring){
+    		ring.forEach( function(coord, i){
+    			var projected = projection( coord );
+    			if (i == 0) {
+                    context.moveTo(projected[0], projected[1])
+                } else {
+                    context.lineTo(projected[0], projected[1])
+                }
+    		})
+    	})
+    	context.closePath()
+    	context.fill()    
+    }
+    
+    for (var i=0; i<num_tracts; i++) {
+        var r = Math.floor(i / 256),
+            g = i % 256
+        
+        var coordinates = tracts[i].geometry.coordinates,
+            fill = "rgb(" + r + "," + g + ",0)"
+        
+        drawPolygon(coordinates, fill)
+    }
+    
+    var pixels = context.getImageData(0,0,width,height).data;
+
+    for (var i=0; i<num_tracts; i++) {
+        tract = tracts[i]
+        population = population_by_tract[i]
+
+        var bounds = path.bounds(tract),
+            x0 = bounds[0][0],
+            y0 = bounds[0][1],
+            w = bounds[1][0] - x0,
+            h = bounds[1][1] - y0
+
+        for (var j=0; j<population; j++) {
+            var tries = 1
+
+            while (true) {
+                var x = Math.round(x0 + Math.random()*w),
+                    y = Math.round(y0 + Math.random()*h)
+                
+                var r = Math.floor(i / 256),
+                    g = i % 256
+                
+            	var index = (x + y * width) * 4
+                
+                var actual_r = pixels[index],
+                    actual_g = pixels[index+1]
+                             
+                var contains = actual_r == r && actual_g == g
+                if (contains) {
+                    svg.append("circle")
+                        .attr("cx", x)
+                        .attr("cy", y)
+                        .attr("r", 1)
+                        .attr("fill", "red")
+                        .attr("fill-opacity", .3)
+                    break
+                }
+
+                tries++
+            }
+        }
+    }
+});
+
+</script>
