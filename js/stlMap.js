@@ -41,6 +41,7 @@ class Map {
     
             var path = d3.geoPath()
                 .projection(projection);
+
     
             var tracts = stl.features
     

@@ -19,3 +19,9 @@ h1 {
     font-family: 'Old Standard TT', serif;
     fill: var(--dark-brown) !important;
 }
+.nav-item {
+    font-family: 'Josefin Sans', sans-serif;
+}
+label {
+    font-size: 3em !important;
+}
