@@ -10,8 +10,11 @@
      */
     function init() {
 
-        map = new Map (2010)
-        map.update()
+        map = new Map(2010)
+        //map.update() //call this in the year tool bar class rather
+
+        yearBar = new YearBar(map)
+        yearBar.update()
 
     }
 

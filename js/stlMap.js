@@ -9,11 +9,17 @@ class Map {
     update() {
 
         var self = this
-        var svg = d3.select("body").append("svg")
+
+        //remove and update div
+        d3.select("#chart-area").remove()
+        d3.select("#year-col").append("div")
+        .attr("id", "chart-area")
+
+        var svg = d3.select("#chart-area").append("svg")
             .attr("width", this.width)
             .attr("height", this.height)
 
-        var canvas = d3.select("body").append("canvas")
+        var canvas = d3.select("#chart-area").append("canvas")
             .attr("width", this.width)
             .attr("height", this.height)
             .style("display", "none");
@@ -22,7 +28,7 @@ class Map {
 
         Promise.all([
             d3.json('map/stl.json'),
-            d3.csv('data/2010.csv'),
+            d3.csv('data/' + self.year + '.csv'),
             this
         ]).then(function(data) {
             var self = data[2]

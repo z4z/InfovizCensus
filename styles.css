@@ -1,0 +1,21 @@
+/*
+Color scheme variables
+*/
+:root {
+    --dark-brown:#2C3531;
+    --turquoise:#116466;
+    --light-brown:#D9B08C;
+    --light-pink:#FFCB9A;
+    --light-blue:#D1E8E2;
+}
+body {
+    background-color: var(--light-blue);
+}
+h1 {
+    font-family: 'Allerta Stencil', sans-serif;
+    color: var(--turquoise);
+}
+.number {
+    font-family: 'Old Standard TT', serif;
+    fill: var(--dark-brown) !important;
+}
