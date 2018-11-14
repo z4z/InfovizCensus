@@ -5,7 +5,7 @@ class YearBar {
         this.stlMap = stlMap
         //use same year as what is associated with the map
         this.year = this.stlMap.year
-        this.years = [{year:1960}, {year:1970}, {year:1980}, {year:1990}, {year:2000}, {year:2010}]
+        this.years = [{year:1970}, {year:1980}, {year:1990}, {year:2000}, {year:2010}]
         this.w = 1200
         this.h = 500
         this.padding = 25
@@ -16,7 +16,7 @@ class YearBar {
         this.y_2 = this.padding
         this.defaultYear = 2010
         this.isFirst = true
-        this.minYear = 1960
+        this.minYear = 1970
         this.maxYear = 2010
     }
 
@@ -65,7 +65,10 @@ class YearBar {
                 if (d.year == self.year) {
                     return "chosenCircle"
                 }
-                return " "
+                return "notChosen"
+            })
+            .attr("class", function (d, i) {
+                    return "year_" + (1970 + 10 * i).toString()
             })
             .attr("cx", function (d) {
                 return yearRange(parseInt(d.year));
@@ -92,26 +95,36 @@ class YearBar {
             .on("click", function (d, i) {
                 //reset the chosen circle
                 line_g.selectAll("#chosenCircle")
-                .attr("id", " ")
+                .attr("id", "notChosen")
                 .attr("fill", "#FFCB94")
                 .attr("r", 8)
 
-                line_g.append("circle")
-                    .attr("id", "chosenCircle")
-                    .attr("cx", yearRange(parseInt(d.year)))
-                    .attr("cy", 25)
-                    .attr("r", function () {
-                        return 12
-                    })
-                    .attr("fill", function () {
-                        return "#116466";
-                    })
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1.0)
-                    self.year = parseInt(d.year)
-                    //update stl map year
-                    self.stlMap.year = self.year
-                    self.stlMap.update()
+                
+                var chosenClass = ".year_" + (1970 + 10 * i).toString()
+
+
+                line_g.selectAll(chosenClass)
+                .attr("id", "chosenCircle")
+                .attr("cx", yearRange(parseInt(d.year)))
+                .attr("cy", 25)
+                .attr("r", function () {
+                    return 12
+                })
+                .attr("fill", function () {
+                    return "#116466";
+                })
+                .attr("stroke", "black")
+                .attr("stroke-width", 1.0)
+                
+
+                // line_g.selectAll("circle")
+
+
+
+                self.year = parseInt(d.year)
+                //update stl map year
+                self.stlMap.year = self.year
+                self.stlMap.update()
             })
 
         //update stl map based on year
