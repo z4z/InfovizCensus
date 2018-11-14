@@ -92,6 +92,7 @@ class YearBar {
             .on("click", function (d, i) {
                 //reset the chosen circle
                 line_g.selectAll("#chosenCircle")
+                .attr("id", " ")
                 .attr("fill", "#FFCB94")
                 .attr("r", 8)
 
