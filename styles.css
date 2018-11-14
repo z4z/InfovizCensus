@@ -19,3 +19,25 @@ h1 {
     font-family: 'Old Standard TT', serif;
     fill: var(--dark-brown) !important;
 }
+.nav-item {
+    font-family: 'Josefin Sans', sans-serif;
+}
+.firstBtn {
+    background-color: red;
+}
+.firstBtn:hover {
+    font-weight: bold;
+}
+.secondBtn {
+    background-color: blue;
+}
+.secondBtn:hover {
+    font-weight: bold;
+}
+button {
+    font-family: 'Arvo', serif;
+}
+.btn:hover {
+    background-color: var(--light-pink);
+    color: var(--dark-brown);
+}
