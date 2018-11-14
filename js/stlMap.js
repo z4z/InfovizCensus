@@ -28,7 +28,7 @@ class Map {
 
         Promise.all([
             d3.json('map/stl.json'),
-            d3.csv('data/' + self.year + '.csv'),
+            d3.csv('data/' + self.year.toString() + '.csv'),
             this
         ]).then(function(data) {
             var self = data[2]
