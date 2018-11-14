@@ -74,9 +74,9 @@ class Map {
             //     }
             // }
     
-            var white_col = 'SE_T054_002',
-            black_col = 'SE_T054_003',
-            tract_id_col = 'Geo_TRACT'
+            var white_col = 'Race-White',
+            black_col = 'Race-Black',
+            tract_id_col = 'Geo_CT'
     
             var white_by_tract = new Array(num_tracts)
             var black_by_tract = new Array(num_tracts)
@@ -87,7 +87,7 @@ class Map {
     
                 var num_white = parseInt(tract_data[white_col])
                 var num_black = parseInt(tract_data[black_col])
-    
+
                 var tract_index = 0
                 for (var j = 0; j < num_tracts; j++) {
                     if (tract_id == stl_tract_ids[j]) {
@@ -97,8 +97,9 @@ class Map {
                 }
                 white_by_tract[tract_index] = num_white
                 black_by_tract[tract_index] = num_black
+
             }
-    
+
             for (var i = 0; i < num_tracts; i++) {
                 var r = Math.floor(i / 256),
                     g = i % 256
@@ -115,7 +116,7 @@ class Map {
                 var tract = tracts[i]
                 var white_pop = Math.round(white_by_tract[i] / 50)
                 var black_pop = Math.round(black_by_tract[i] / 50)
-    
+
                 var bounds = path.bounds(tract),
                     x0 = bounds[0][0],
                     y0 = bounds[0][1],
